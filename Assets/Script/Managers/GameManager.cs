@@ -32,11 +32,12 @@ public class GameManager : MonoBehaviour
         CreatePlayer(playerPrefab, playerParent);
 
         player.GetComponent<Player>().onDynamite += PlaceDynamite;
-        MineableObject.OnMined += Log;
+        MineableObject.OnMined += CreateCollectable;
     }
-    void Log(string s)
+    void CreateCollectable(GameObject collectableObject, Vector2 loc)
     {
-        UnityEngine.Debug.Log(s + " has been digged");
+        UnityEngine.Debug.Log("collectable created");
+        Instantiate(collectableObject, loc, Quaternion.identity, commonParent.transform);
     }
     void Update()
     {
@@ -103,11 +104,12 @@ public class GameManager : MonoBehaviour
         for (int i = tiles.Count - 1; i >= 0; i--)
         {
             var tile = tiles[i];
-            if (Vector2.Distance(center, tile.GetComponent<RectTransform>().position) < range)
+            if (tile != null && tile.GetComponent<RectTransform>() != null &&
+                Vector2.Distance(center, tile.GetComponent<RectTransform>().position) < range)
             {
+                tile.GetComponent<MineableObject>().blasted = true;
                 UnityEngine.Debug.Log(tile.name + " has been destroyed.");
                 tiles.RemoveAt(i);
-                Destroy(tile);
             }
         }
     }
