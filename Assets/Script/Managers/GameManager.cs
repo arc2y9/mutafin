@@ -17,8 +17,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject commonParent;
     [SerializeField] GameObject dynamite;
 
-    int boardHeight = 24;
-    int boardWidth = 36;
+    int boardHeight = 40;
+    int boardWidth = 50;
 
     float pace = 100f;
 
@@ -36,11 +36,26 @@ public class GameManager : MonoBehaviour
     }
     void Log(string s)
     {
-        UnityEngine.Debug.Log(s + "has been digged");
+        UnityEngine.Debug.Log(s + " has been digged");
     }
     void Update()
     {
+        
+        if (Input.GetMouseButton(1))
+        {
+            Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
 
+            if (hit.collider != null)
+            {
+                UnityEngine.Debug.Log("Týklanan yerde bir obje var: " + hit.collider.name);
+            }
+            else
+            {
+                UnityEngine.Debug.Log("Týklanan yerde hiçbir obje yok.");
+                PlaceBlock();
+            }
+        }
     }
     private void CreateBoard()
     {
@@ -95,5 +110,24 @@ public class GameManager : MonoBehaviour
                 Destroy(tile);
             }
         }
+    }
+
+    private void PlaceBlock()
+    {
+        GameObject newTile = Instantiate(tilePrefabs[0], commonParent.transform);
+
+        Vector2 localPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            commonParent.GetComponent<RectTransform>(),
+            Input.mousePosition,
+            this.gameObject.GetComponent<Canvas>().renderMode == RenderMode.ScreenSpaceOverlay ? null : Camera.main,
+            out localPoint
+        );
+
+        localPoint = new Vector3(pace * (int)(localPoint.x / pace),
+                            pace * (int)(localPoint.y / pace), 0f);
+
+        newTile.GetComponent<RectTransform>().localPosition = localPoint;
+        tiles.Add(newTile);
     }
 }
