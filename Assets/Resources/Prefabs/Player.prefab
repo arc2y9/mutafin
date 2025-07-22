@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4913347344046671718}
   - component: {fileID: 4389600310982021480}
   - component: {fileID: 1661310741134969802}
+  - component: {fileID: 7137400329047713221}
   m_Layer: 5
   m_Name: Player
   m_TagString: Player
@@ -145,6 +146,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 5
   jumpForce: 10
+  inventory: {fileID: 0}
 --- !u!50 &1661310741134969802
 Rigidbody2D:
   serializedVersion: 5
@@ -172,3 +174,18 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &7137400329047713221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6465672044754830012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3217e47655f25e848bc61a8ea1d9e370, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 4389600310982021480}
+  items: []
+  amounts: 

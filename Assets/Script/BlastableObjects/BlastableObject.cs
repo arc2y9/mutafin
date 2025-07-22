@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class BlastableObject : MonoBehaviour
 {
-    public event Action<Vector3, int> OnBlast;
+    public event Action<GameObject> OnBlast;
     public abstract float lastingTime { get; set; }
     public abstract int range { get; set; }
 
@@ -18,7 +18,7 @@ public abstract class BlastableObject : MonoBehaviour
         
         yield return new WaitForSeconds(lastingTime);
 
-        OnBlast.Invoke(this.GetComponent<RectTransform>().position, range);
+        OnBlast.Invoke(this.gameObject);
         
         Destroy(gameObject);
 

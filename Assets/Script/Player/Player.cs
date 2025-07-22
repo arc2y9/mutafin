@@ -3,20 +3,20 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+
     public float speed;
     public float jumpForce;
 
     private Rigidbody2D rb;
     private bool isGrounded;
 
-    Inventory inventory;
-
+    //public Inventory inventory;
     public delegate void DynamiteHandler();
     public event DynamiteHandler onDynamite;
     void Start()
     {
-        inventory = new Inventory();
-        inventory.AddDynamite(5);
+        //inventory = new Inventory();
+
         speed = 4f;
         jumpForce = 5f;
         rb = GetComponent<Rigidbody2D>();

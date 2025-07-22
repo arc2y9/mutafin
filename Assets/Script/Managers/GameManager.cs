@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Xml.Serialization;
+using TMPro;
 using Unity.Properties;
 using UnityEngine;
 
@@ -16,16 +17,22 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject playerParent;
     [SerializeField] GameObject commonParent;
     [SerializeField] GameObject dynamite;
-
+    [SerializeField] GameObject Bomb;
     int boardHeight = 40;
     int boardWidth = 50;
 
+    int remainingUse = 10;
+
     float pace = 100f;
 
-    GameObject player;
 
+    GameObject player;
+    [Header("UI")]
+    [SerializeField] TextMeshProUGUI distance;
+    [SerializeField] TextMeshProUGUI remaningUseText;
     void Start()
     {
+        
         tiles = new List<GameObject>();
 
         CreateBoard();
@@ -33,33 +40,54 @@ public class GameManager : MonoBehaviour
 
         player.GetComponent<Player>().onDynamite += PlaceDynamite;
         MineableObject.OnMined += CreateCollectable;
+
+        remaningUseText.text = "Remaning usage : " + remainingUse;
+
     }
-    void CreateCollectable(GameObject collectableObject, Vector2 loc)
-    {
-        UnityEngine.Debug.Log("collectable created");
-        Instantiate(collectableObject, loc, Quaternion.identity, commonParent.transform);
-    }
+    
     void Update()
     {
         
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButtonDown(1))
         {
             Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
 
-            if (hit.collider != null)
+            if (hit.collider == null)
             {
-                UnityEngine.Debug.Log("Týklanan yerde bir obje var: " + hit.collider.name);
-            }
-            else
-            {
-                UnityEngine.Debug.Log("Týklanan yerde hiçbir obje yok.");
                 PlaceBlock();
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Q) && remainingUse > 0 && Bomb != null)
+        {
+            remainingUse--;
+            remaningUseText.text = "Remaning usage : " + remainingUse;
+            distance.text = "Distance : " + (int)Vector2.Distance(player.GetComponent<RectTransform>().position,
+                Bomb.GetComponent<RectTransform>().position);
+        }
+        else if(Bomb == null)
+        {
+            remaningUseText.text = "Bomb has been eliminated.";
+        }
+        else if(remainingUse <= 0)
+        {
+            remaningUseText.text = "Your scanner has no battery.";
+        } 
+    }
+    GameObject CreateCollectable(GameObject minedObj) // performansý düþürüyo
+    {
+        UnityEngine.Debug.Log("collectable created");
+        minedObj.GetComponent<RectTransform>().localScale = new Vector3(minedObj.GetComponent<RectTransform>().localScale.x * 0.1f,
+                                                                        minedObj.GetComponent<RectTransform>().localScale.y * 0.1f,
+                                                                        minedObj.GetComponent<RectTransform>().localScale.z * 0.1f);
+        return minedObj;
     }
     private void CreateBoard()
     {
+        int a = Random.Range(0, boardHeight);
+        int b = Random.Range(0, boardWidth);
+
         for(int i = 0; i < boardHeight; i++)
         {
             for(int j = 0; j < boardWidth; j++)
@@ -68,6 +96,13 @@ public class GameManager : MonoBehaviour
                 newTile.GetComponent<RectTransform>().anchoredPosition = new Vector2(-1800 + j * pace, 400 - i * pace);
                 newTile.GetComponent<SpriteRenderer>().sortingOrder = (int)LayerManager.Mineables;
                 tiles.Add(newTile);
+                if(a == i && b == j)
+                {
+                    GameObject bomb = Instantiate(Bomb, commonParent.transform);
+                    bomb.GetComponent<RectTransform>().position = tileParent.GetComponent<RectTransform>().position;
+                    bomb.GetComponent<SpriteRenderer>().sortingOrder = (int)LayerManager.Bomb;
+                }
+                
             }
         }
     }
@@ -98,8 +133,10 @@ public class GameManager : MonoBehaviour
 
         UnityEngine.Debug.Log("Dynamite placed at: " + localPoint);
     }
-    private void BlastArea(Vector3 center, int range)
+    private void BlastArea(GameObject blaster)
     {
+        int range = blaster.GetComponent<BlastableObject>().range;
+        Vector2 center = blaster.GetComponent<RectTransform>().position;
         UnityEngine.Debug.Log("blasting the area");
         for (int i = tiles.Count - 1; i >= 0; i--)
         {
@@ -107,7 +144,9 @@ public class GameManager : MonoBehaviour
             if (tile != null && tile.GetComponent<RectTransform>() != null &&
                 Vector2.Distance(center, tile.GetComponent<RectTransform>().position) < range)
             {
-                tile.GetComponent<MineableObject>().blasted = true;
+                GameObject newObj = CreateCollectable(tile.gameObject);
+                newObj.GetComponent<MineableObject>().Blow(center, range);
+                newObj.GetComponent<Collider2D>().isTrigger = true;
                 UnityEngine.Debug.Log(tile.name + " has been destroyed.");
                 tiles.RemoveAt(i);
             }
