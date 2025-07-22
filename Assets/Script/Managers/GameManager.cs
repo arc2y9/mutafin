@@ -1,4 +1,6 @@
+using JetBrains.Annotations;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -6,6 +8,8 @@ using System.Xml.Serialization;
 using TMPro;
 using Unity.Properties;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,7 +21,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject playerParent;
     [SerializeField] GameObject commonParent;
     [SerializeField] GameObject dynamite;
-    [SerializeField] GameObject Bomb;
+    [SerializeField] GameObject bombPrefab;
+    GameObject Bomb;
     int boardHeight = 40;
     int boardWidth = 50;
 
@@ -32,7 +37,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI remaningUseText;
     void Start()
     {
-        
+
         tiles = new List<GameObject>();
 
         CreateBoard();
@@ -44,10 +49,18 @@ public class GameManager : MonoBehaviour
         remaningUseText.text = "Remaning usage : " + remainingUse;
 
     }
-    
+    public Action nothing;
     void Update()
     {
-        
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+            if (hit.collider != null && hit.collider.CompareTag("bomb"))
+            {
+                SceneManager.LoadScene("bomb_sc");
+            }
+        }
         if (Input.GetMouseButtonDown(1))
         {
             Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -73,7 +86,7 @@ public class GameManager : MonoBehaviour
         else if(remainingUse <= 0)
         {
             remaningUseText.text = "Your scanner has no battery.";
-        } 
+        }
     }
     GameObject CreateCollectable(GameObject minedObj) // performansý düþürüyo
     {
@@ -85,22 +98,24 @@ public class GameManager : MonoBehaviour
     }
     private void CreateBoard()
     {
-        int a = Random.Range(0, boardHeight);
-        int b = Random.Range(0, boardWidth);
+        int a = UnityEngine.Random.Range(boardHeight/2, boardHeight);
+        int b = UnityEngine.Random.Range(boardWidth/2, boardWidth);
+
+        //UnityEngine.Debug.Log("a: " +  a + " b: " +  b);
 
         for(int i = 0; i < boardHeight; i++)
         {
             for(int j = 0; j < boardWidth; j++)
             {
-                GameObject newTile = Instantiate(tilePrefabs[Random.Range(0,tilePrefabs.Count)], tileParent.transform);
+                GameObject newTile = Instantiate(tilePrefabs[UnityEngine.Random.Range(0,tilePrefabs.Count)], tileParent.transform);
                 newTile.GetComponent<RectTransform>().anchoredPosition = new Vector2(-1800 + j * pace, 400 - i * pace);
                 newTile.GetComponent<SpriteRenderer>().sortingOrder = (int)LayerManager.Mineables;
                 tiles.Add(newTile);
                 if(a == i && b == j)
                 {
-                    GameObject bomb = Instantiate(Bomb, commonParent.transform);
-                    bomb.GetComponent<RectTransform>().position = tileParent.GetComponent<RectTransform>().position;
-                    bomb.GetComponent<SpriteRenderer>().sortingOrder = (int)LayerManager.Bomb;
+                    Bomb = Instantiate(bombPrefab, newTile.GetComponent<RectTransform>().position, 
+                        Quaternion.identity, commonParent.transform);
+                    Bomb.GetComponent<SpriteRenderer>().sortingOrder = (int)LayerManager.Bomb;
                 }
                 
             }

@@ -405,6 +405,7 @@ GameObject:
   - component: {fileID: 203595941}
   - component: {fileID: 203595946}
   - component: {fileID: 203595945}
+  - component: {fileID: 203595947}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -510,6 +511,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25c8f4a6254b00147b18d914920c9d03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lifetime: 3
   blasted: 0
   collactable: {fileID: 0}
 --- !u!114 &203595946
@@ -533,9 +535,21 @@ MonoBehaviour:
   playerParent: {fileID: 203595940}
   commonParent: {fileID: 1727266411}
   dynamite: {fileID: 2941057197769597369, guid: b9f025add1d6db042992606d543e4283, type: 3}
-  Bomb: {fileID: 2941057197769597369, guid: b422c12e3bc3acc4d9340ea813eb4cc9, type: 3}
+  bombPrefab: {fileID: 2100806356401474890, guid: 8cd5d480d14947c46ba1f303122f0ade, type: 3}
   distance: {fileID: 197713429}
   remaningUseText: {fileID: 21480515}
+--- !u!114 &203595947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 203595940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c728b36913a2c7a44818c7f3e786ad1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
